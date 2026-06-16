@@ -1,0 +1,96 @@
+{
+  "admissions": [
+    {
+      "id": "adm_1",
+      "fullName": "Aarav Mehra",
+      "mobile": "+91 98765 43210",
+      "email": "aarav.mehra@gmail.com",
+      "course": "CSIR NET Chemistry",
+      "city": "Bhubaneswar",
+      "message": "I want to apply for the early bird 50% scholarship. Please share admission steps.",
+      "submittedAt": "2026-06-12T16:40:54.312Z",
+      "status": "Pending"
+    },
+    {
+      "id": "adm_2",
+      "fullName": "Sneha Iyer",
+      "mobile": "+91 91234 56789",
+      "email": "sneha.iyer@outlook.com",
+      "course": "IIT JAM Chemistry",
+      "city": "New Delhi",
+      "message": "MSc chemistry aspirant here. Looking for early enrollment details.",
+      "submittedAt": "2026-06-15T04:40:54.312Z",
+      "status": "Contacted"
+    }
+  ],
+  "careers": [
+    {
+      "id": "car_1",
+      "name": "Dr. Vikram Adiga",
+      "mobile": "+91 88888 77777",
+      "email": "vikram.adiga@science.org",
+      "position": "Chemistry Faculty (IIT JAM)",
+      "resumeUrl": "Resume_Dr_Vikram_Adiga.pdf",
+      "message": "I hold a Ph.D. from IIT Bombay in Physical Chemistry. Eager to take up the senior lecturer posting.",
+      "submittedAt": "2026-06-13T16:40:54.312Z",
+      "status": "Received"
+    },
+    {
+      "id": "car_2",
+      "name": "Rishi Kant",
+      "mobile": "+91 77777 66666",
+      "email": "rishikant91@gmail.com",
+      "position": "Student Career Counsellor",
+      "resumeUrl": "Resume_Rishi_Kant.docx",
+      "message": "6 years experience managing admissions and student guidance at top national coachings.",
+      "submittedAt": "2026-06-15T11:40:54.312Z",
+      "status": "Reviewed"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "con_1",
+      "name": "Maanas Shaurya",
+      "mobile": "+91 94444 33333",
+      "email": "maanas.s@gmail.com",
+      "subject": "Hostel Facility Cost",
+      "message": "Is food fee included in the PG facility tie-ups for NEET dropouts?",
+      "submittedAt": "2026-06-12T16:40:54.313Z",
+      "status": "New"
+    },
+    {
+      "id": "con_2",
+      "name": "Prita Das",
+      "mobile": "+91 95555 22222",
+      "email": "das.prita@yahoo.com",
+      "subject": "GATE Chemistry evening batches",
+      "message": "Do you offer Saturday-Sunday offline intensive batches for working corporate chemists?",
+      "submittedAt": "2026-06-14T22:40:54.313Z",
+      "status": "Resolved"
+    }
+  ],
+  "enquiries": [
+    {
+      "id": "enq_1",
+      "name": "Yashvardhan Malik",
+      "mobile": "+91 96666 11111",
+      "email": "yash.malik@rediffmail.com",
+      "course": "GATE Chemistry",
+      "message": "Need structure of GATE mock exams and numerical typing guides.",
+      "source": "Course Card",
+      "submittedAt": "2026-06-11T16:40:54.313Z",
+      "status": "Interested"
+    },
+    {
+      "id": "enq_2",
+      "name": "Tanya Sen",
+      "mobile": "+91 99380 75054",
+      "email": "tanya.sen@gmail.com",
+      "course": "NEET",
+      "message": "Interested in the 2-Year offline integrated NEET biology coaching. Send brochure.",
+      "source": "Chatbot",
+      "submittedAt": "2026-06-15T14:40:54.313Z",
+      "status": "New"
+    }
+  ]
+}
