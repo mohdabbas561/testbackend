@@ -4,16 +4,19 @@
  */
 
 import express from "express";
+import cors from "cors";
 import path from "path";
 import fs from "fs";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+// Allow requests from your Hostinger frontend
+app.use(cors({ origin: ["https://sofarepairgurgaon.in", "http://localhost:5173"] }));
 
 app.use(express.json({ limit: "50mb" }));
 
@@ -39,7 +42,7 @@ const INITIAL_DB: DBStructure = {
       course: "CSIR NET Chemistry",
       city: "Bhubaneswar",
       message: "I want to apply for the early bird 50% scholarship. Please share admission steps.",
-      submittedAt: new Date(Date.now() - 3600000 * 24 * 3).toISOString(), // 3 days ago
+      submittedAt: new Date(Date.now() - 3600000 * 24 * 3).toISOString(),
       status: "Pending"
     },
     {
@@ -50,7 +53,7 @@ const INITIAL_DB: DBStructure = {
       course: "IIT JAM Chemistry",
       city: "New Delhi",
       message: "MSc chemistry aspirant here. Looking for early enrollment details.",
-      submittedAt: new Date(Date.now() - 3600000 * 12).toISOString(), // 12 hours ago
+      submittedAt: new Date(Date.now() - 3600000 * 12).toISOString(),
       status: "Contacted"
     }
   ],
@@ -136,7 +139,6 @@ function loadDB(): DBStructure {
   } catch (error) {
     console.error("Failed to parse DB file, using fallback INITIAL_DB", error);
   }
-  // Initialize with initial mockup records
   saveDB(INITIAL_DB);
   return INITIAL_DB;
 }
@@ -152,7 +154,7 @@ function saveDB(data: DBStructure) {
 // Credentials
 const ADMIN_CREDENTIALS = {
   username: "admin",
-  password: "naiserpassword", // Under secure instructions, simple username/password requested.
+  password: "naiserpassword",
   token: "naiser_session_secure_token_2026_0B3D91"
 };
 
@@ -171,6 +173,11 @@ function authenticateAdmin(req: express.Request, res: express.Response, next: ex
 }
 
 // ---- API REST ENDPOINTS ----
+
+// Health check
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", message: "NAISER backend is running!" });
+});
 
 // 1. Submit admission request
 app.post("/api/admissions", (req, res) => {
@@ -249,7 +256,7 @@ app.post("/api/contacts", (req, res) => {
   return res.status(201).json({ success: true, id: entry.id, message: "Message sent! We will contact you soon." });
 });
 
-// 4. Submit General course enquiry (from Course cards)
+// 4. Submit General course enquiry
 app.post("/api/enquiries", (req, res) => {
   const { name, mobile, email, course, message, source } = req.body;
   if (!name || !mobile || !email || !course) {
@@ -312,7 +319,6 @@ app.put("/api/admin/submissions/:type/:id", authenticateAdmin, (req, res) => {
     return res.status(404).json({ error: "Form submission record not found." });
   }
 
-  // Update properties
   collection[itemIdx].status = status;
   if (remarks !== undefined) {
     collection[itemIdx].remarks = remarks;
@@ -345,13 +351,11 @@ app.delete("/api/admin/submissions/:type/:id", authenticateAdmin, (req, res) => 
 app.get("/api/admin/dashboard", authenticateAdmin, (req, res) => {
   const db = loadDB();
 
-  // Aggregate stats
   const totalEnquiries = db.enquiries.length;
   const admissionRequests = db.admissions.length;
   const careerApplications = db.careers.length;
   const contactLeads = db.contacts.length;
 
-  // Course-wise enquiry aggregator
   const courseWiseEnquiries: Record<string, number> = {
     "CSIR NET Chemistry": 0,
     "GATE Chemistry": 0,
@@ -360,7 +364,6 @@ app.get("/api/admin/dashboard", authenticateAdmin, (req, res) => {
     "General / Other": 0
   };
 
-  // Compile from enquiries
   db.enquiries.forEach((item) => {
     const matchedKey = Object.keys(courseWiseEnquiries).find(
       (k) => item.course && item.course.toLowerCase().includes(k.toLowerCase().split(" ")[0])
@@ -372,7 +375,6 @@ app.get("/api/admin/dashboard", authenticateAdmin, (req, res) => {
     }
   });
 
-  // Compile from admissions too for robust counts
   db.admissions.forEach((item) => {
     const matchedKey = Object.keys(courseWiseEnquiries).find(
       (k) => item.course && item.course.toLowerCase().includes(k.toLowerCase().split(" ")[0])
@@ -393,14 +395,13 @@ app.get("/api/admin/dashboard", authenticateAdmin, (req, res) => {
   });
 });
 
-// 10. SMART CHATBOT ENDPOINT with fallback
+// 10. SMART CHATBOT ENDPOINT
 app.post("/api/chat", async (req, res) => {
   const { message, history } = req.body;
   if (!message) {
     return res.status(400).json({ error: "Message content required" });
   }
 
-  // Pre-baked system instructions for NAISER Chatbot
   const defaultSystemInstruction = `
     You are 'Naisera', the interactive Virtual AI assistant for NAISER (Napthoquine Institute of Science Education and Research). 
     NAISER provides pure offline classroom program coachings for premium scientific exams: 
@@ -415,7 +416,6 @@ app.post("/api/chat", async (req, res) => {
     Keep responses to the point, structured as short beautiful bullet points.
   `;
 
-  // Fallback replies built in-house for offline mode or empty API keys
   const getOfflineReply = (msg: string): string => {
     const queryLower = msg.toLowerCase();
     if (queryLower.includes("course") || queryLower.includes("chemistry") || queryLower.includes("subject")) {
@@ -438,7 +438,6 @@ app.post("/api/chat", async (req, res) => {
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || apiKey === "MY_GEMINI_API_KEY") {
-    // Elegant, fast offline reply
     return res.json({ text: getOfflineReply(message) });
   }
 
@@ -473,25 +472,7 @@ app.post("/api/chat", async (req, res) => {
   }
 });
 
-// Serve static assets in production, otherwise Vite handles in development
-async function startServer() {
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa"
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
-  }
-
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[NAISER SERVER ACTIVE] Listening securely on port http://0.0.0.0:${PORT} in ${process.env.NODE_ENV || "development"} mode.`);
-  });
-}
-
-startServer();
+// Start server (API only — no frontend serving)
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`[NAISER SERVER ACTIVE] Listening on port ${PORT}`);
+});
