@@ -16,7 +16,13 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Allow requests from your Hostinger frontend
-app.use(cors({ origin: ["https://sofarepairgurgaon.in", "http://localhost:5173"] }));
+app.use(cors({ 
+  origin: [
+    "https://sofarepairgurgaon.in", 
+    "http://localhost:5173",
+    "http://localhost:3000"  // ← add this
+  ] 
+}));
 
 app.use(express.json({ limit: "50mb" }));
 
